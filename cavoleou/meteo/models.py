@@ -45,6 +45,7 @@ class Meteo(models.Model):
     vent_moyen_kmh = models.IntegerField(null=True)
     vent_rafales_kmh = models.IntegerField(null=True)
     temps = models.CharField(max_length=255, null=True, blank=True)
+    pluie = models.FloatField(null=True, default=0)
 
     @property
     def vent_direction_int_to_enum(self):
@@ -52,8 +53,6 @@ class Meteo(models.Model):
 
     @property
     def wind_speed_status(self):
-        print(self.spot.min_wind_speed_good, self.vent_moyen_kmh, self.spot.max_wind_speed_good)
-        print(self.spot.min_wind_speed_good <= self.vent_moyen_kmh <= self.spot.max_wind_speed_good)
         if self.spot.min_wind_speed_good <= self.vent_moyen_kmh <= self.spot.max_wind_speed_good:
             return Spot.FLYABILIY_GOOD
         if self.spot.min_wind_speed_limit <= self.vent_moyen_kmh <= self.spot.max_wind_speed_limit:
@@ -78,7 +77,11 @@ class Meteo(models.Model):
 
     @property
     def weather_status(self):
-        return Spot.FLYABILIY_GOOD  # TODO
+        if not self.pluie or self.pluie <= 0:
+            return Spot.FLYABILIY_GOOD
+        if self.pluie <= 0.2:
+            return Spot.FLYABILIY_LIMIT
+        return Spot.FLYABILIY_BAD
 
     @property
     def tide_status(self):
@@ -100,7 +103,6 @@ class Meteo(models.Model):
             self.weather_status,
             self.tide_status,
         )
-        print(flyability_statuses)
 
         if Spot.FLYABILIY_BAD in flyability_statuses:
             return Spot.FLYABILIY_BAD

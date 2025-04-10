@@ -1,1 +1,21 @@
-<h1>Hello home</h1>
+<h1>Ça vole où en Normandie ?</h1>
+
+<div>
+    {% for spot, meteo_data in grouped_meteo_data.items %}
+        <div>
+            <div>{{ spot.name }}</div>
+            {% for meteo_day in meteo_data %}
+                {% for meteo_slot in meteo_day %}
+                    {{ meteo_slot }}<br/>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        <hr/>
+    {% endfor %}
+</div>
+
+<footer>
+    <div>
+        Contact / support : remaudcorentin.dev@gmail.com
+    </div>
+</footer>

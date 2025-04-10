@@ -17,6 +17,11 @@ def clean_percentage(text):
 def clean_pression(text):
     return text.replace("hPa", "").strip()
 
+def clean_pluie(text):
+    if text == "--":
+        return "0"
+    return text.replace(" mm", "").replace(" cm", "")
+
 def extract_angle(text):
     match = re.search(r"(\d+)\s*°", text)
     return int(match.group(1)) if match else None
@@ -94,7 +99,7 @@ def extract(url, spot_name):
                     "vent_direction": cols[offset + 2].img['alt'] if cols[offset + 2].find("img") else None,
                     "vent_moyen_kmh": cols[offset + 3].get_text(strip=True),
                     "vent_rafales_kmh": cols[offset + 4].get_text(strip=True),
-                    "pluie_1h": cols[offset + 5].get_text(strip=True),
+                    "pluie": clean_pluie(cols[offset + 5].get_text(strip=True)),
                     "humidite": cols[offset + 6].get_text(strip=True),
                     "pression": cols[offset + 7].get_text(strip=True),
                     "temps": cols[offset + 8].img['alt'] if cols[offset + 8].find("img") else None,
