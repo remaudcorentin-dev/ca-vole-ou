@@ -150,6 +150,8 @@
                                             <img src="{% static 'icons/meteo/mitige.gif' %}" />
                                         {% elif meteo_slot.temps == "Pluie modérée" %}
                                             <img src="{% static 'icons/meteo/pluie.gif' %}" />
+                                        {% elif meteo_slot.temps == "Averses de pluie fortes" %}
+                                            <img src="{% static 'icons/meteo/averse_pluie.gif' %}" />
                                         {% elif meteo_slot.temps == "Risque d'orage faible avec pluie modérée à forte" %}
                                             <img src="{% static 'icons/meteo/averse_orage.gif' %}" />
                                         {% else %}
