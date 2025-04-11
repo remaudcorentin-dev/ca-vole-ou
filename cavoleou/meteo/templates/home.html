@@ -38,6 +38,18 @@
                 width: 18px;
             }
 
+            .hidden {
+                display: none;
+            }
+
+            tr.toggle-trigger {
+                cursor: pointer;
+            }
+
+            tr.toggle-trigger:hover {
+                background-color: #e0e0e0;
+            }
+
             .status_good_bg {
                 background-color: forestgreen;
             }
@@ -59,7 +71,7 @@
             <table style="overflow: scroll; text-align: center;">
 
                 {% for spot, meteo_data in grouped_meteo_data.items %}
-                    <tr style="font-size: 22px;">
+                    <tr style="font-size: 22px;" class="toggle-trigger toggle-trigger-{{ spot.id }}">
                         <th style="font-size: 22px; background-color: white;">
                             {{ spot.name }}
                         </th>
@@ -70,7 +82,7 @@
                         {% endfor %}
                     </tr>
 
-                    <tr>
+                    <tr class="toggle-trigger toggle-trigger-{{ spot.id }}">
                         <th>
                             Date
                         </th>
@@ -81,7 +93,7 @@
                         {% endfor %}
                     </tr>
 
-                    <tr>
+                    <tr class="toggle-trigger toggle-trigger-{{ spot.id }}">
                         <th>
                             Heure
                         </th>
@@ -94,7 +106,7 @@
                         {% endfor %}
                     </tr>
 
-                    <tr>
+                    <tr class="hidden toggle-target-{{ spot.id }} toggle-trigger-{{ spot.id }}">
                         <th>
                             Orientation
                         </th>
@@ -112,7 +124,7 @@
                         {% endfor %}
                     </tr>
 
-                    <tr>
+                    <tr class="hidden toggle-target-{{ spot.id }} toggle-trigger-{{ spot.id }}">
                         <th>
                             Vent moy.
                         </th>
@@ -128,7 +140,7 @@
                         {% endfor %}
                     </tr>
 
-                    <tr>
+                    <tr class="hidden toggle-target-{{ spot.id }} toggle-trigger-{{ spot.id }}">
                         <th>
                             Vent max.
                         </th>
@@ -144,7 +156,7 @@
                         {% endfor %}
                     </tr>
 
-                    <tr>
+                    <tr class="hidden toggle-target-{{ spot.id }} toggle-trigger-{{ spot.id }}">
                         <th>
                             Météo
                         </th>
@@ -185,7 +197,7 @@
                         {% endfor %}
                     </tr>
 
-                    <tr>
+                    <tr class="hidden toggle-target-{{ spot.id }} toggle-trigger-{{ spot.id }}">
                         <th>
                             Pluie
                         </th>
@@ -204,7 +216,7 @@
                         {% endfor %}
                     </tr>
 
-                    <tr>
+                    <tr class="toggle-trigger toggle-trigger-{{ spot.id }} toggle-trigger-{{ spot.id }}">
                         <th>
                             Status
                         </th>
@@ -239,11 +251,24 @@
             </table>
         </div>
 
-        <footer>
+        <footer style="margin-top: 20px;">
+            <hr/>
             <div>
-                Contact / support : remaudcorentin.dev@gmail.com
+                Contact / support : <a href="mailto:remaudcorentin.dev@gmail.com">remaudcorentin.dev@gmail.com</a>
             </div>
         </footer>
     </body>
+
+    <script>
+        {% for spot, meteo_data in grouped_meteo_data.items %}
+            document.querySelectorAll("tr.toggle-trigger-{{ spot.id }}").forEach(trigger => {
+                trigger.addEventListener("click", () => {
+                    document.querySelectorAll("tr.toggle-target-{{ spot.id }}").forEach(target => {
+                        target.classList.toggle("hidden");
+                    })
+                });
+            });
+        {% endfor %}
+    </script>
 
 </html>
