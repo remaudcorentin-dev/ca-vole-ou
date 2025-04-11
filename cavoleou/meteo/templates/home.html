@@ -47,17 +47,17 @@
             }
 
             tr.toggle-trigger:hover {
-                background-color: #e0e0e0;
+                background-color: #F1F3F0;
             }
 
             .status_good_bg {
-                background-color: forestgreen;
+                background-color: #6EC87A;
             }
             .status_limit_bg {
-                background-color: orange;
+                background-color: #FDC483;
             }
             .status_bad_bg {
-                background-color: indianred;
+                background-color: #FF999C;
             }
         </style>
     </head>
@@ -72,8 +72,8 @@
 
                 {% for spot, meteo_data in grouped_meteo_data.items %}
                     <tr style="font-size: 22px;" class="toggle-trigger toggle-trigger-{{ spot.id }}">
-                        <th style="font-size: 22px; background-color: white;">
-                            {{ spot.name }}
+                        <th style="font-size: 22px; background-color: inherit;">
+                            <a href="/spot/{{ spot.id }}" style="color: #222;">{{ spot.name }}</a>
                         </th>
                         {% for meteo_day in meteo_data %}
                             <td colspan="{{ meteo_day|length }}">

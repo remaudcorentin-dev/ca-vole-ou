@@ -17,9 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from meteo.views import home
+from meteo.views import home, spot_detail
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path(r'spot/<int:spot_id>', spot_detail, name='spot-detail'),
     path('', home, name='home'),
 ]

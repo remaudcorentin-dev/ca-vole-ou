@@ -18,7 +18,13 @@ class Spot(ComputedFieldsModel):
 
     name = models.CharField(max_length=255)
     meteo_url = models.CharField(max_length=255)
-    description = models.TextField()
+
+    href_ffvl = models.TextField(blank=True)
+    href_club = models.TextField(blank=True)
+    href_beacon = models.TextField(blank=True)
+    href_map = models.TextField(blank=True)
+
+    description = models.TextField(blank=True)
 
     min_wind_speed_limit = models.IntegerField(default=10)
     min_wind_speed_good = models.IntegerField(default=15)
