@@ -35,6 +35,8 @@ def clean_data(forecast_data):
         entry["vent_direction"] = int(extract_angle(entry["vent_direction"]))
     return forecast_data
 
+def clean_temps(text):
+    return text.strip()
 
 def extract(url, spot_name):
 
@@ -102,7 +104,7 @@ def extract(url, spot_name):
                     "pluie": clean_pluie(cols[offset + 5].get_text(strip=True)),
                     "humidite": cols[offset + 6].get_text(strip=True),
                     "pression": cols[offset + 7].get_text(strip=True),
-                    "temps": cols[offset + 8].img['alt'] if cols[offset + 8].find("img") else None,
+                    "temps": clean_temps(cols[offset + 8].img['alt']) if cols[offset + 8].find("img") else None,
                     "key": f"WRF-{spot_name}-{forecast_datetime.isoformat()}"
                 })
             except Exception as e:

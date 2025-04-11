@@ -1,21 +1,217 @@
-<h1>Ça vole où en Normandie ?</h1>
+{% load static %}
 
-<div>
-    {% for spot, meteo_data in grouped_meteo_data.items %}
+<html lang="fr">
+
+    <head>
+        <title>Ça vole où ?</title>
+
+        <style>
+            table {
+                font-size: 12px;
+            }
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            table tbody {
+                display: table;
+                width: 100%;
+            }
+
+            table th {
+                width: 80px;
+                background-color: azure;
+                position: absolute;
+                border-right: 1px solid #CCC;
+            }
+
+            .status_good_bg {
+                background-color: forestgreen;
+            }
+            .status_limit_bg {
+                background-color: orange;
+            }
+            .status_bad_bg {
+                background-color: indianred;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>Ça vole où en Normandie ?</h1>
+        <hr/>
+
         <div>
-            <div>{{ spot.name }}</div>
-            {% for meteo_day in meteo_data %}
-                {% for meteo_slot in meteo_day %}
-                    {{ meteo_slot }}<br/>
-                {% endfor %}
+            {% for spot, meteo_data in grouped_meteo_data.items %}
+                <div>
+                    <div>
+                        <h2>{{ spot.name }}</h2>
+                    </div>
+
+                    <table style="overflow: scroll; text-align: center;">
+                        <tr>
+                            <th>
+                                Date
+                            </th>
+                            {% for meteo_day in meteo_data %}
+                                <td colspan="{{ meteo_day|length }}" style="border-right: 1px solid #ccc;">
+                                    {{ meteo_day.0.datetime|date:'d/m'}}
+                                </td>
+                            {% endfor %}
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Heure
+                            </th>
+                            {% for meteo_day in meteo_data %}
+                                {% for meteo_slot in meteo_day %}
+                                    <td>
+                                        <b>{{ meteo_slot.datetime|date:'H'}}h</b>
+                                    </td>
+                                {% endfor %}
+                            {% endfor %}
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Orientation
+                            </th>
+                            {% for meteo_day in meteo_data %}
+                                {% for meteo_slot in meteo_day %}
+                                    <td class="{% if meteo_slot.wind_direction_status == "FLYABILIY_BAD" %}status_bad_bg
+                                               {% elif meteo_slot.wind_direction_status == "FLYABILIY_LIMIT" %}status_limit_bg
+                                               {% elif meteo_slot.wind_direction_status == "FLYABILIY_GOOD" %}status_good_bg
+                                               {% endif %}">
+                                        {% with 'icons/vents/'|add:meteo_slot.vent_direction_int_to_enum|add:'.png' as vent_ico %}
+                                            <img src="{% static vent_ico %}" />
+                                        {% endwith %}
+                                    </td>
+                                {% endfor %}
+                            {% endfor %}
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Vent moy.
+                            </th>
+                            {% for meteo_day in meteo_data %}
+                                {% for meteo_slot in meteo_day %}
+                                    <td class="{% if meteo_slot.wind_speed_status == "FLYABILIY_BAD" %}status_bad_bg
+                                               {% elif meteo_slot.wind_speed_status == "FLYABILIY_LIMIT" %}status_limit_bg
+                                               {% elif meteo_slot.wind_speed_status == "FLYABILIY_GOOD" %}status_good_bg
+                                               {% endif %}">
+                                        {{ meteo_slot.vent_moyen_kmh}}
+                                    </td>
+                                {% endfor %}
+                            {% endfor %}
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Vent max.
+                            </th>
+                            {% for meteo_day in meteo_data %}
+                                {% for meteo_slot in meteo_day %}
+                                    <td class="{% if meteo_slot.gusts_speed_status == "FLYABILIY_BAD" %}status_bad_bg
+                                               {% elif meteo_slot.gusts_speed_status == "FLYABILIY_LIMIT" %}status_limit_bg
+                                               {% elif meteo_slot.gusts_speed_status == "FLYABILIY_GOOD" %}status_good_bg
+                                               {% endif %}">
+                                        {{ meteo_slot.vent_rafales_kmh}}
+                                    </td>
+                                {% endfor %}
+                            {% endfor %}
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Météo
+                            </th>
+                            {% for meteo_day in meteo_data %}
+                                {% for meteo_slot in meteo_day %}
+                                    <td>
+                                        {% if meteo_slot.temps == "Ciel clair" %}
+                                            <img src="{% static 'icons/meteo/soleil.gif' %}" />
+                                        {% elif meteo_slot.temps == "Peu nuageux" %}
+                                            <img src="{% static 'icons/meteo/peu_nuageux.gif' %}" />
+                                        {% elif meteo_slot.temps == "Voilé" %}
+                                            <img src="{% static 'icons/meteo/voile.png' %}" />
+                                        {% elif meteo_slot.temps == "Couvert" %}
+                                            <img src="{% static 'icons/meteo/nuageux.gif' %}" />
+                                        {% elif meteo_slot.temps == "Averses de pluie faibles" %}
+                                            <img src="{% static 'icons/meteo/averse_pluiefaible.gif' %}" />
+                                        {% elif meteo_slot.temps == "Pluie faible" %}
+                                            <img src="{% static 'icons/meteo/averse_pluiefaible.gif' %}" />
+                                        {% elif meteo_slot.temps == "Brumes ou brouillard" %}
+                                            <img src="{% static 'icons/meteo/brouillard.gif' %}" />
+                                        {% elif meteo_slot.temps == "Mitigé" %}
+                                            <img src="{% static 'icons/meteo/mitige.gif' %}" />
+                                        {% elif meteo_slot.temps == "Pluie modérée" %}
+                                            <img src="{% static 'icons/meteo/pluie.gif' %}" />
+                                        {% elif meteo_slot.temps == "Risque d'orage faible avec pluie modérée à forte" %}
+                                            <img src="{% static 'icons/meteo/averse_orage.gif' %}" />
+                                        {% else %}
+                                            {{ meteo_slot.temps}}
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            {% endfor %}
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Pluie
+                            </th>
+                            {% for meteo_day in meteo_data %}
+                                {% for meteo_slot in meteo_day %}
+                                    <td class="{% if meteo_slot.weather_status == "FLYABILIY_BAD" %}status_bad_bg
+                                               {% elif meteo_slot.weather_status == "FLYABILIY_LIMIT" %}status_limit_bg
+                                               {% endif %}">
+                                        {% if meteo_slot.pluie <= 0 %}
+                                            --
+                                        {% else %}
+                                            {{ meteo_slot.pluie}}
+                                       {% endif %}
+                                    </td>
+                                {% endfor %}
+                            {% endfor %}
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Status
+                            </th>
+                            {% for meteo_day in meteo_data %}
+                                {% for meteo_slot in meteo_day %}
+                                    <td class="{% if meteo_slot.flyability_status == "FLYABILIY_BAD" %}status_bad_bg{% elif meteo_slot.flyability_status == "FLYABILIY_LIMIT" %}status_limit_bg{% elif meteo_slot.flyability_status == "FLYABILIY_GOOD" %}status_good_bg{% endif %}">
+                                        {% if meteo_slot.flyability_status == "FLYABILIY_BAD" %}
+                                            👎
+                                        {% endif %}
+                                        {% if meteo_slot.flyability_status == "FLYABILIY_LIMIT" %}
+                                            🫰
+                                        {% endif %}
+                                        {% if meteo_slot.flyability_status == "FLYABILIY_GOOD" %}
+                                            👍
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            {% endfor %}
+                        </tr>
+
+                    </table>
+
+                </div>
+                <hr/>
             {% endfor %}
         </div>
-        <hr/>
-    {% endfor %}
-</div>
 
-<footer>
-    <div>
-        Contact / support : remaudcorentin.dev@gmail.com
-    </div>
-</footer>
+        <footer>
+            <div>
+                Contact / support : remaudcorentin.dev@gmail.com
+            </div>
+        </footer>
+    </body>
+
+</html>
