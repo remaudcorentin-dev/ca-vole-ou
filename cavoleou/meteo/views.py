@@ -7,7 +7,7 @@ from meteo.models import Spot, Meteo
 
 def get_grouped_meteo_data(one_spot=None):
     current_time = now()
-    time_threshold = current_time - timedelta(hours=1)
+    time_threshold = current_time - timedelta(hours=2)
 
     result = {}
 
