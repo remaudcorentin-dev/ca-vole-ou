@@ -27,12 +27,14 @@ def extract_angle(text):
     return int(match.group(1)) if match else None
 
 def clean_data(forecast_data):
-    # Appliquer les nettoyages à toutes les entrées
     for entry in forecast_data:
         entry["temperature"] = int(clean_temperature(entry["temperature"]))
-        entry["humidite"] = int(clean_percentage(entry["humidite"]))
-        entry["pression"] = int(clean_pression(entry["pression"]))
+        #entry["humidite"] = int(clean_percentage(entry["humidite"]))
+        #entry["pression"] = int(clean_pression(entry["pression"]))
         entry["vent_direction"] = int(extract_angle(entry["vent_direction"]))
+        entry["pluie"] = float(entry["pluie"])
+        entry["vent_moyen_kmh"] = int(entry["vent_moyen_kmh"])
+        entry["vent_rafales_kmh"] = int(entry["vent_rafales_kmh"])
     return forecast_data
 
 def clean_temps(text):
@@ -97,18 +99,18 @@ def extract(url, spot_name):
                 forecast_data.append({
                     "datetime": forecast_datetime.isoformat(),
                     "temperature": cols[offset].get_text(strip=True),
-                    "temp_ressentie": cols[offset + 1].get_text(strip=True),
+                    # "temp_ressentie": cols[offset + 1].get_text(strip=True),
                     "vent_direction": cols[offset + 2].img['alt'] if cols[offset + 2].find("img") else None,
                     "vent_moyen_kmh": cols[offset + 3].get_text(strip=True),
                     "vent_rafales_kmh": cols[offset + 4].get_text(strip=True),
                     "pluie": clean_pluie(cols[offset + 5].get_text(strip=True)),
-                    "humidite": cols[offset + 6].get_text(strip=True),
-                    "pression": cols[offset + 7].get_text(strip=True),
+                    #"humidite": cols[offset + 6].get_text(strip=True),
+                    #"pression": cols[offset + 7].get_text(strip=True),
                     "temps": clean_temps(cols[offset + 8].img['alt']) if cols[offset + 8].find("img") else None,
                     "key": f"WRF-{spot_name}-{forecast_datetime.isoformat()}"
                 })
             except Exception as e:
-                continue
+                print(e)
 
     forecast_data = clean_data(forecast_data)
 

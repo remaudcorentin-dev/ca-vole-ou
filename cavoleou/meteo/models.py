@@ -2,8 +2,10 @@ from django.db import models
 
 from meteo.utils import vent_direction_int_to_enum
 
+from computedfields.models import ComputedFieldsModel, computed
 
-class Spot(models.Model):
+
+class Spot(ComputedFieldsModel):
     FLYABILIY_GOOD = "FLYABILIY_GOOD"
     FLYABILIY_LIMIT = "FLYABILIY_LIMIT"
     FLYABILIY_BAD = "FLYABILIY_BAD"
@@ -34,7 +36,7 @@ class Spot(models.Model):
         return self.name
 
 
-class Meteo(models.Model):
+class Meteo(ComputedFieldsModel):
     key = models.CharField(max_length=255)
 
     spot = models.ForeignKey(Spot, on_delete=models.CASCADE)
@@ -47,51 +49,96 @@ class Meteo(models.Model):
     temps = models.CharField(max_length=255, null=True, blank=True)
     pluie = models.FloatField(null=True, default=0)
 
-    @property
+    @computed(
+        models.CharField(max_length=3, null=True, default=None),
+        depends=[('self', ['vent_direction'])]
+    )
     def vent_direction_int_to_enum(self):
+        if not self.vent_direction:
+            return None
         return vent_direction_int_to_enum(self.vent_direction)
 
-    @property
+    @computed(
+        models.CharField(max_length=32, default=Spot.FLYABILIY_GOOD),
+        depends=[
+            ('self', ['vent_moyen_kmh']),
+            ('spot', ['min_wind_speed_good', 'max_wind_speed_good', 'min_wind_speed_limit', 'max_wind_speed_limit']),
+        ]
+    )
     def wind_speed_status(self):
+        if not self.vent_moyen_kmh:
+            return Spot.FLYABILIY_BAD
+
         if self.spot.min_wind_speed_good <= self.vent_moyen_kmh <= self.spot.max_wind_speed_good:
             return Spot.FLYABILIY_GOOD
         if self.spot.min_wind_speed_limit <= self.vent_moyen_kmh <= self.spot.max_wind_speed_limit:
             return Spot.FLYABILIY_LIMIT
         return Spot.FLYABILIY_BAD
 
-    @property
+    @computed(
+        models.CharField(max_length=32, default=Spot.FLYABILIY_GOOD),
+        depends=[
+            ('self', ['vent_rafales_kmh']),
+            ('spot', ['max_gusts_speed_good', 'max_gusts_speed_limit']),
+        ]
+    )
     def gusts_speed_status(self):
+        if not self.vent_rafales_kmh:
+            return Spot.FLYABILIY_BAD
+
+        if not self.vent_rafales_kmh:
+            return Spot.FLYABILIY_BAD
         if self.vent_rafales_kmh <= self.spot.max_gusts_speed_good:
             return Spot.FLYABILIY_GOOD
         if self.vent_rafales_kmh <= self.spot.max_gusts_speed_limit:
             return Spot.FLYABILIY_LIMIT
         return Spot.FLYABILIY_BAD
 
-    @property
+
+    @computed(
+        models.CharField(max_length=32, default=Spot.FLYABILIY_GOOD),
+        depends=[
+            ('self', ['vent_direction_int_to_enum']),
+            ('spot', ['vent_directions_good', 'vent_directions_limit']),
+        ]
+    )
     def wind_direction_status(self):
+        if not self.vent_direction_int_to_enum:
+            return Spot.FLYABILIY_BAD
+
         if self.vent_direction_int_to_enum in self.spot.vent_directions_good:
             return Spot.FLYABILIY_GOOD
         if self.vent_direction_int_to_enum in self.spot.vent_directions_limit:
             return Spot.FLYABILIY_LIMIT
         return Spot.FLYABILIY_BAD
 
-    @property
+    @computed(
+        models.CharField(max_length=32, default=Spot.FLYABILIY_GOOD),
+        depends=[
+            ('self', ['pluie']),
+        ]
+    )
     def weather_status(self):
-        if not self.pluie or self.pluie <= 0:
+        if not self.pluie:
             return Spot.FLYABILIY_GOOD
-        if self.pluie <= 0.2:
+        if float(self.pluie) <= 0:
+            return Spot.FLYABILIY_GOOD
+        if float(self.pluie) <= 0.2:
             return Spot.FLYABILIY_LIMIT
         return Spot.FLYABILIY_BAD
 
-    @property
     def tide_status(self):
         return Spot.FLYABILIY_GOOD  # TODO
 
-    @property
     def day_time_status(self):
         return Spot.FLYABILIY_GOOD  # TODO
 
-    @property
+    @computed(
+        models.CharField(max_length=32, default=Spot.FLYABILIY_GOOD),
+        depends=[
+            ('self', ['wind_speed_status', 'gusts_speed_status', 'wind_direction_status', 'weather_status']),
+        ]
+    )
     def flyability_status(self):
         if not self.spot:
             return None
@@ -101,7 +148,8 @@ class Meteo(models.Model):
             self.gusts_speed_status,
             self.wind_direction_status,
             self.weather_status,
-            self.tide_status,
+            #self.tide_status,
+            #self.day_time_status,
         )
 
         if Spot.FLYABILIY_BAD in flyability_statuses:
