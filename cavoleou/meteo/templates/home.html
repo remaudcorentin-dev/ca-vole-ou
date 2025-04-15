@@ -116,9 +116,11 @@
                                            {% elif meteo_slot.wind_direction_status == "FLYABILIY_LIMIT" %}status_limit_bg
                                            {% elif meteo_slot.wind_direction_status == "FLYABILIY_GOOD" %}status_good_bg
                                            {% endif %}">
-                                    {% with 'icons/vents/'|add:meteo_slot.vent_direction_int_to_enum|add:'.png' as vent_ico %}
-                                        <img src="{% static vent_ico %}" style="width: 14px;" />
-                                    {% endwith %}
+                                    {% if meteo_slot.vent_direction_int_to_enum %}
+                                        {% with 'icons/vents/'|add:meteo_slot.vent_direction_int_to_enum|add:'.png' as vent_ico %}
+                                            <img src="{% static vent_ico %}" style="width: 14px;" />
+                                        {% endwith %}
+                                    {% endif %}
                                 </td>
                             {% endfor %}
                         {% endfor %}
