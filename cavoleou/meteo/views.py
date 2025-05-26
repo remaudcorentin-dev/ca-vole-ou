@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 
 from datetime import timedelta, time
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from django.utils.timezone import now
 from meteo.models import Spot, Meteo
 
@@ -35,7 +35,12 @@ def get_grouped_meteo_data(one_spot=None):
 
     if one_spot:
         return result[one_spot]
-    return result
+
+    ordered_result = OrderedDict(
+        sorted(result.items(), key=lambda item: item[0].display_order)
+    )
+
+    return ordered_result
 
 def home(request):
     context = {
