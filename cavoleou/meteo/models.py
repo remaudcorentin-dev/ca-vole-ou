@@ -18,6 +18,7 @@ class Spot(ComputedFieldsModel):
 
     name = models.CharField(max_length=255)
     meteo_url = models.CharField(max_length=255)
+    display_order = models.IntegerField(default=0)  # Not used yet
 
     href_ffvl = models.TextField(blank=True)
     href_club = models.TextField(blank=True)
@@ -54,7 +55,6 @@ class Meteo(ComputedFieldsModel):
     vent_rafales_kmh = models.IntegerField(null=True)
     temps = models.CharField(max_length=255, null=True, blank=True)
     pluie = models.FloatField(null=True, default=0)
-    display_order = models.IntegerField(default=0)  # Not used yet
 
     @computed(
         models.CharField(max_length=3, null=True, default=None),
